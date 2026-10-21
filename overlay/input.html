@@ -142,19 +142,19 @@
           window.overlayApi.getSettings(),
         ]);
         if (settings.url) urlInput.value = settings.url;
-        displaySelect.innerHTML = '';
+        displaySelect.innerHTML = '<option value="all">すべてのモニター</option><option value="auto">自動（外部モニター優先）</option>';
         displays.forEach(display => {
           const option = document.createElement('option');
           option.value = display.id;
           option.textContent = display.label;
           displaySelect.appendChild(option);
         });
-        if (displays.some(d => d.id === settings.displayId)) {
+        if (settings.displayId === 'all' || settings.displayId === 'auto' || displays.some(d => d.id === settings.displayId)) {
           displaySelect.value = settings.displayId;
         }
       } catch (err) {
         console.error('Failed to get displays:', err);
-        displaySelect.innerHTML = '<option value="">メインモニター（既定）</option>';
+        displaySelect.innerHTML = '<option value="all">すべてのモニター</option><option value="auto">自動（外部モニター優先）</option>';
       }
     }
 
@@ -169,7 +169,7 @@
         url = 'https://' + url;
       }
 
-      const displayId = displaySelect.value ? Number(displaySelect.value) : null;
+      const displayId = ['all', 'auto'].includes(displaySelect.value) ? displaySelect.value : Number(displaySelect.value);
       window.overlayApi.submit(url, displayId);
     }
 

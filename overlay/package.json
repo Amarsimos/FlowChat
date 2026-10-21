@@ -44,7 +44,7 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "Amarsimos",
+      "owner": "haselab-dev",
       "repo": "FlowChat"
     }
   }

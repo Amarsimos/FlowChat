@@ -1,10 +1,11 @@
 name: FlowChatSystem release
 
-# Push a tag like "FlowChatSystem-v1.0.1" (matching overlay/package.json version) to build and publish
+# Push a tag like "v1.0.1" (matching overlay/package.json version) to build and publish.
+# electron-updater only recognizes semver tags, so the tag itself can't carry the app name.
 on:
   push:
     tags:
-      - 'FlowChatSystem-v*'
+      - 'v*'
 
 permissions:
   contents: write
@@ -24,5 +25,9 @@ jobs:
           cache-dependency-path: overlay/package-lock.json
       - run: npm ci
       - run: npm run release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set release title
+        run: gh release edit "${{ github.ref_name }}" --title "FlowChatSystem ${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -39,7 +39,7 @@ npm run dist
 ## リリース
 
 1. `package.json` の `version` を上げる
-2. `FlowChatSystem-v<version>` のタグを push する（例: `git tag FlowChatSystem-v1.0.1 && git push origin FlowChatSystem-v1.0.1`）
+2. `v<version>` のタグを push する（例: `git tag v1.0.1 && git push origin v1.0.1`）。自動アップデートが semver 形式のタグしか認識しないため、タグにアプリ名は付けません
 3. GitHub Actions がインストーラーをビルドし GitHub Releases に公開
 4. インストール済みのクライアントは次回起動時に自動で更新
 

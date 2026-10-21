@@ -1,0 +1,25 @@
+{
+  "name": "flow-chat-system",
+  "version": "1.0.0",
+  "description": "Transparent click-through chroma key web overlay built with Electron.",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0"
+  },
+  "build": {
+    "appId": "com.flowchat.system",
+    "productName": "FlowChatSystem",
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        "zip"
+      ],
+      "requestedExecutionLevel": "requireAdministrator"
+    }
+  }
+}

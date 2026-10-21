@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FlowChatSystem Setup</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: linear-gradient(135deg, #1e1e2e, #11111b);
+      color: #cdd6f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .container {
+      width: 85%;
+      max-width: 400px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transform: translateY(20px);
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 24px;
+      font-weight: 600;
+      background: linear-gradient(95deg, #89b4fa, #b4befe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      font-size: 13px;
+      color: #a6adc8;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: #bac2de;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #45475a;
+      border-radius: 8px;
+      background-color: #181825;
+      color: #cdd6f4;
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: #b4befe;
+      box-shadow: 0 0 0 3px rgba(180, 190, 254, 0.2);
+    }
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cdd6f4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #89b4fa, #b4befe);
+      color: #11111b;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(137, 180, 250, 0.25);
+      margin-top: 10px;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(137, 180, 250, 0.35);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>FlowChatSystem</h2>
+    <p>Haselab専用</p>
+
+    <div class="form-group">
+      <label for="urlInput">Target URL</label>
+      <input type="text" id="urlInput" placeholder="https://example.com" value="https://t-hasegawa-fu.github.io/FlowChat/ShowPageStamp.html" autofocus>
+    </div>
+
+    <div class="form-group">
+      <label for="displaySelect">Display Monitor</label>
+      <select id="displaySelect">
+        <option value="">Detecting monitors...</option>
+      </select>
+    </div>
+
+    <button id="submitBtn">Launch Overlay</button>
+  </div>
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const submitBtn = document.getElementById('submitBtn');
+    const urlInput = document.getElementById('urlInput');
+    const displaySelect = document.getElementById('displaySelect');
+
+    // Dynamically retrieve and populate display monitors
+    async function initDisplays() {
+      try {
+        const displays = await ipcRenderer.invoke('get-displays');
+        displaySelect.innerHTML = '';
+        displays.forEach(display => {
+          const option = document.createElement('option');
+          option.value = display.id;
+          option.textContent = display.label;
+          displaySelect.appendChild(option);
+        });
+      } catch (err) {
+        console.error('Failed to get displays:', err);
+        displaySelect.innerHTML = '<option value="">Primary Display (Default)</option>';
+      }
+    }
+
+    initDisplays();
+
+    function launch() {
+      let url = urlInput.value.trim();
+      if (!url) return;
+
+      // Auto-prepend protocol if missing
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
+
+      const displayId = displaySelect.value ? Number(displaySelect.value) : null;
+      ipcRenderer.send('submit-url', { url, displayId });
+    }
+
+    submitBtn.addEventListener('click', launch);
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        launch();
+      }
+    });
+  </script>
+</body>
+</html>

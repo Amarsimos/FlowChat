@@ -1,25 +1,51 @@
 {
   "name": "flow-chat-system",
   "version": "1.0.0",
-  "description": "Transparent click-through chroma key web overlay built with Electron.",
+  "description": "Transparent, click-through desktop overlay for FlowChat comments.",
   "main": "index.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win"
+    "dist": "electron-builder --win",
+    "release": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
-    "electron": "^28.0.0",
-    "electron-builder": "^24.9.0"
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
   },
   "build": {
     "appId": "com.flowchat.system",
     "productName": "FlowChatSystem",
+    "files": [
+      "index.js",
+      "preload.js",
+      "overlay-preload.js",
+      "input.html",
+      "icon.png",
+      "icon.ico"
+    ],
     "win": {
       "icon": "icon.ico",
       "target": [
+        "nsis",
         "zip"
       ],
-      "requestedExecutionLevel": "requireAdministrator"
+      "artifactName": "${productName}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "${productName} Setup.${ext}"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Amarsimos",
+      "repo": "FlowChat"
     }
   }
 }

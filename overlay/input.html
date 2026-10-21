@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>FlowChatSystem Setup</title>
+  <title>FlowChatSystem 設定</title>
   <style>
     body {
       margin: 0;
@@ -116,22 +116,20 @@
     <p>Haselab専用</p>
 
     <div class="form-group">
-      <label for="urlInput">Target URL</label>
+      <label for="urlInput">表示するURL</label>
       <input type="text" id="urlInput" placeholder="https://example.com" value="https://t-hasegawa-fu.github.io/FlowChat/ShowPageStamp.html" autofocus>
     </div>
 
     <div class="form-group">
-      <label for="displaySelect">Display Monitor</label>
+      <label for="displaySelect">表示先モニター</label>
       <select id="displaySelect">
-        <option value="">Detecting monitors...</option>
+        <option value="">モニターを検出中...</option>
       </select>
     </div>
 
-    <button id="submitBtn">Launch Overlay</button>
+    <button id="submitBtn">オーバーレイを起動</button>
   </div>
   <script>
-    const { ipcRenderer } = require('electron');
-
     const submitBtn = document.getElementById('submitBtn');
     const urlInput = document.getElementById('urlInput');
     const displaySelect = document.getElementById('displaySelect');
@@ -139,7 +137,11 @@
     // Dynamically retrieve and populate display monitors
     async function initDisplays() {
       try {
-        const displays = await ipcRenderer.invoke('get-displays');
+        const [displays, settings] = await Promise.all([
+          window.overlayApi.getDisplays(),
+          window.overlayApi.getSettings(),
+        ]);
+        if (settings.url) urlInput.value = settings.url;
         displaySelect.innerHTML = '';
         displays.forEach(display => {
           const option = document.createElement('option');
@@ -147,9 +149,12 @@
           option.textContent = display.label;
           displaySelect.appendChild(option);
         });
+        if (displays.some(d => d.id === settings.displayId)) {
+          displaySelect.value = settings.displayId;
+        }
       } catch (err) {
         console.error('Failed to get displays:', err);
-        displaySelect.innerHTML = '<option value="">Primary Display (Default)</option>';
+        displaySelect.innerHTML = '<option value="">メインモニター（既定）</option>';
       }
     }
 
@@ -165,7 +170,7 @@
       }
 
       const displayId = displaySelect.value ? Number(displaySelect.value) : null;
-      ipcRenderer.send('submit-url', { url, displayId });
+      window.overlayApi.submit(url, displayId);
     }
 
     submitBtn.addEventListener('click', launch);
